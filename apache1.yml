@@ -1,0 +1,22 @@
+---
+# start with defining the target host name or IP or host group name
+- hosts: node2.com
+
+  tasks:
+
+  - name: Ansible delete index.html file
+    file:
+      path: /var/www/html/index.html
+      state: absent
+
+  - name: stop apache
+    service:
+      name: httpd
+      state: stopped
+
+  - name: remove apache
+    yum:
+      name: httpd
+      state: removed
+
+...

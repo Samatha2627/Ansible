@@ -1,0 +1,4 @@
+- hosts: node2.com
+
+  roles:
+    - database

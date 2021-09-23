@@ -1,0 +1,10 @@
+---
+- hosts : webserver2
+ 
+  tasks:
+
+  - name: replace
+    replace: 
+      path: /var/www/html/index.html
+      regexp: 'Hello'
+      replace: 'Hii'

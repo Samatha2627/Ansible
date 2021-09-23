@@ -1,0 +1,63 @@
+- hosts: node1.com
+
+  vars_prompt:
+      - name: container_name
+        prompt: "Docker Container Name: "
+        private: no
+
+  vars:
+          - image_name: surajwarbhe/ssh_centos:v1
+
+  tasks:
+      - name: Creating Repo for yum
+        yum_repository:
+            name: docker
+            file: docker
+            description: Docker Yum Repo
+            baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+            gpgcheck: no
+
+      - name: Installing Python3...
+        command: "yum -y install python3"
+      - name: Installing Docker Software...
+        command: "yum install -y  docker"
+
+      - name: Starting Docker services...
+        service:
+            name: "docker"
+            state: started
+            enabled: yes
+
+      #- name: Installing Docker Library...
+      #  command: "yum install docker-py"
+      - name: build the image
+        docker_image: 
+             name: built-by-ansible
+             #tag: ex1
+             #path: /tmp/site
+             state: present
+
+    #  - name: "Launching {{ container_name }} Container"
+    #    docker_container:
+    #        name: "{{ container_name }}"
+    #        image: "{{ image_name }}"
+    #        state: started
+    #        interactive: yes
+    #        detach: yes
+    #        tty: yes
+
+      - name: "Container Info"
+        docker_container_info:
+            name: "{{ container_name }}"
+        register: dinfo
+
+      - name: "Printing IP of Docker container..."
+        debug:
+              msg: "{{ dinfo.container.NetworkSettings.IPAddress}}"
+  handlers:
+  - name: docker
+    yum:
+        name: docker-ce
+        state: present
+        allow_downgrade: yes
+        skip_broken: yes

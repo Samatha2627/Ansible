@@ -1,0 +1,43 @@
+- name: Create Docker Container
+  hosts: node1.com
+  connection: local  
+  remote_user: root
+  tasks:
+    - name: include variables
+      include_vars: vars.yml
+    - name: Install docker on Red Hat based distribution
+      yum:
+       name: docker
+       #enablerepo: extras
+       state: latest
+      when: ansible_os_family == 'RedHat'
+    - name: ensure service is enabled 
+      command: service docker restart
+
+    - name: Create Container
+      docker_container:
+        name: "{{ name }}"
+        image: "{{ image }}"
+        ports:
+          - "{{ src_port }}:{{ dest_port }}"
+        volumes:
+          - "{{ src_vol }}:{{ dest_vol }}"
+        privileged: "{{ privileged }}"
+    - name: Create Systemd Unit File as docker-{{ name }}.service
+      template: src=systemd.j2 dest=/etc/systemd/system/docker-{{ name }}.service
+    - name: reload systemd daemon
+      command: systemctl daemon-reload 
+    - name: Start & Enable docker-{{ name }} service
+      service:
+        name: docker-{{ name }}
+        state: started
+        enabled: yes
+    - name: check image status
+      command: docker images
+      register: result
+    - debug: var=result.stdout
+
+    - name: check container status
+      command: docker ps
+      register: result
+    - debug: var=result.stdout

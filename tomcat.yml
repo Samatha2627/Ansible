@@ -1,0 +1,7 @@
+---
+# start with defining the target host name or IP or host group name
+- hosts: node1.com
+
+  roles:
+    - tomcat
+...

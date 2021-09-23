@@ -1,0 +1,11 @@
+---
+
+- name: Install Docker and Docker Compose on CentOS
+  hosts: node2.com
+  become: true
+
+  tasks:
+     - name: Creating docker image
+       docker_image: 
+            name: nginx
+            source: build

@@ -1,0 +1,46 @@
+- name: Create Docker Container
+  hosts: node1.com
+  connection: local  
+  remote_user: root
+  tasks:
+    - name: include variables
+      include_vars: vars.yml
+    - name: Install docker on Red Hat based distribution
+      yum:
+       name: docker
+       enablerepo: extras
+       state: latest
+      when: ansible_os_family == 'RedHat'
+
+    - name: ensure service is enabled 
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    
+#    - name: copying file to remote
+#      copy:
+#        src: ./docker
+#        dest: /home/root/docker
+
+    - name: Build Docker image from Dockerfile
+      docker_image:
+        name: hello-world
+        #path: /home/root/docker
+        state: present
+
+    - name: Running the container
+      docker_container:
+        image: hello-world
+        name: web
+
+    - name: check image status
+      command: docker images
+      register: result
+    - debug: var=result.stdout
+
+    - name: check container status
+      command: docker ps
+      register: result
+    - debug: var=result.stdout

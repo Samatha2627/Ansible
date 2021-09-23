@@ -1,0 +1,56 @@
+- hosts: node1.com
+
+  vars_prompt:
+      - name: image_name
+        prompt: "Docker Image Name: "
+        private: no
+      - name: container_name
+        prompt: "Docker Container Name: "
+        private: no
+
+  tasks:
+      - name: Creating Repo for yum
+        yum_repository:
+            name: docker
+            file: docker
+            description: Docker Yum Repo
+            baseurl: https://download.docker.com/linux/centos/7/x86_64/stable/
+            gpgcheck: no
+
+      - name: Installing Python3...
+        command: "yum -y install python3"
+      - name: Install Docker
+        yum:
+            name: "{{ item }}"
+            state: installed
+        loop:
+            - docker-ce
+            - docker-ce-cli
+            - containerd.io
+
+      - name: Starting Docker services...
+        service:
+            name: "docker"
+            state: started
+            enabled: yes
+        vars:
+            ansible_python_interpreter: /bin/python3
+
+      - name: build the image
+        docker_image: 
+             name: "{{ image_name }}"
+             state: present
+        vars:
+            ansible_python_interpreter: /bin/python3
+
+      - name: "Launching {{ container_name }} Container"
+        docker_container:
+            name: "{{ container_name }}"
+            image: "{{ image_name }}"
+            state: started
+            interactive: yes
+            detach: yes
+            tty: yes
+        vars:
+            ansible_python_interpreter: /bin/python3
+
