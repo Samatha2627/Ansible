@@ -1,0 +1,5 @@
+---
+# defaults file for database
+ db_user: Kavya
+ db_name: dbnew
+ db_password: kavya123

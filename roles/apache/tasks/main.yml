@@ -1,0 +1,28 @@
+---
+# tasks file for apache
+
+  - name: Install apache
+    yum:
+      name: httpd
+      state: installed
+
+  - name: start apache
+    service:
+      name: httpd
+      state: started
+    ignore_errors: yes 
+
+  - name: create an Index.html
+    copy:
+      src: index.html
+      dest: /var/www/html/index.html
+      backup: yes
+  
+  - name: reconfigure apache to use port 8080 via template
+    template:
+      src: httpd.conf.j2
+      dest: /etc/httpd/conf/httpd.conf
+    notify:
+       # give the handler name below to user the handler
+       - restart after configure
+

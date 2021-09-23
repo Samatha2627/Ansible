@@ -1,0 +1,26 @@
+---
+# tasks file for tomcat
+
+- name: Install Tomcat
+  yum:
+    name: "{{ item }}"
+    state: installed
+  loop:
+    - tomcat
+    - tomcat-webapps
+    - tomcat-admin-webapps
+    - tomcat-docs-webapp
+  when: ansible_os_family == "RedHat" 
+
+- name: copy the configuration file
+  copy:
+    src: tomcat-users.xml
+    dest: /usr/share/tomcat/conf/tomcat-users.xml
+  when: ansible_os_family == "RedHat"
+
+- name: start tomcat
+  service:
+    name: tomcat
+    state: started
+    enabled: true
+  when: ansible_os_family == "RedHat"
